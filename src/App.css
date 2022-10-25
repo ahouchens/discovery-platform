@@ -1,38 +1,52 @@
-.App {
-  text-align: center;
-}
+@import url("https://fonts.googleapis.com/css?family=Share+Tech+Mono");
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+body {
+  font-family: "Share Tech Mono";
+  margin: auto;
   display: flex;
-  flex-direction: column;
+  padding: 20px;
+  color: green;
+  background-color: black;
+  font-size: 30px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+input {
+  background-color: black;
+  color: green;
+  caret-color: white;
+  font-family: "Share Tech Mono";
+  border: 1px solid green;
+  height: 30px;
+  font-size: 30px;
+  line-height: 30px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+input:focus {
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  padding: 3px 0px 3px 3px;
+  margin: 5px 1px 3px 0px;
+  border: 1px solid rgba(81, 203, 238, 1);
+}
+
+button {
+  background-color: green;
+  color: black;
+  padding: 10px;
+  font-size: 30px;
+  font-family: "Share Tech Mono";
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+::selection {
+  background: white; /* WebKit/Blink Browsers */
+}
+
+div {
+  margin-top: 10px;
 }
