@@ -64,8 +64,6 @@ function App() {
   };
 
   const sendMessage = () => {
-    // console.log("peerConnectionObj", peerConnectionObj);
-
     let newMessage = {
       type: "message",
       id: peerId,
@@ -121,7 +119,7 @@ function App() {
     });
 
     return () => {
-      // alert("ON TEAR DOWN??");
+      // Tear Down
     };
   }, []);
 
@@ -169,7 +167,6 @@ function App() {
             required
             id="default_select"
             value={avatarId}
-            // defaultValue={0}
             onChange={(e) => setAvatarId(e.target.value)}
           >
             <option value="0">Ash</option>
@@ -206,7 +203,7 @@ function App() {
         </div>
       ) : (
         <section className="nes-container is-dark with-title">
-          <h3 className="title">Connect to a Peer</h3>
+          <h3 className="title">Connect</h3>
 
           <div>
             <label style={{ width: "100%" }}>
