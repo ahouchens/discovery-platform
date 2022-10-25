@@ -45,8 +45,8 @@ body {
 }
 
 .large-avatar {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   vertical-align: bottom;
   align-self: flex-end;
 }
@@ -64,8 +64,4 @@ body {
 #root {
   width: 100%;
   padding: 10px;
-}
-
-.message::selection {
-  background: red !important;
 }

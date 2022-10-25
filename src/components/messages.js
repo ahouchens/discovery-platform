@@ -56,7 +56,7 @@ function Messages(props) {
                 }
                 style={{
                   verticalAlign: "top",
-                  flexGrow: 1,
+                  // flexGrow: 1,
                   alignSelf: "flex-start",
                 }}
                 key={index}
@@ -105,7 +105,7 @@ function Messages(props) {
                 }
                 style={{
                   verticalAlign: "top",
-                  flexGrow: 1,
+                  //flexGrow: 1,
                   alignSelf: "flex-start",
                 }}
                 key={index}
