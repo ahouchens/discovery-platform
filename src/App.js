@@ -1,12 +1,9 @@
-import logo from "./logo.svg";
 import "./App.css";
 import Peer from "peerjs";
-import { useCallback } from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 function App() {
   const [peerId, setPeerId] = useState();
   const [connectionPeerIds, setConnectionPeerIds] = useState("");
-  const [peer, setPeer] = useState();
   const [name, setName] = useState("Default");
   const [message, setMessage] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -61,10 +58,9 @@ function App() {
 
     peerObj.on("connection", function (conn) {
       conn.on("data", function (data) {
-        console.log("RECEIEVED!", data);
-
         let dataObj = JSON.parse(data);
         switch (dataObj.type) {
+          default:
           case "connection":
             var conn = peerObj.connect(dataObj.id);
             setPeerConnectionObj(conn);
@@ -75,13 +71,10 @@ function App() {
             setIsConnected(true);
             break;
           case "message":
-            console.log("dataObj on message recieved", dataObj);
-            console.log("BEFORE value of messages array", messages);
             setMessages((oldMessages) => [
               ...oldMessages,
               `${dataObj.name} > ${dataObj.message}`,
             ]);
-            console.log("AFTER value of messages array", messages);
 
             break;
         }
@@ -89,7 +82,7 @@ function App() {
     });
 
     return () => {
-      alert("ON TEAR DOWN??");
+      // alert("ON TEAR DOWN??");
     };
   }, []);
 
