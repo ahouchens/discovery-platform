@@ -1,6 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Press+Start+2P");
+
 html {
   background-color: rgb(23, 23, 23);
+  /* background: url("./stars.png"); */
+  background: url("./stars.png");
 }
 
 /* Share tech mono */
@@ -16,11 +19,11 @@ body {
 input {
   background-color: black;
   padding: 8px;
-  color: green;
+  color: #aef78e;
   caret-color: white;
   font-family: "Press Start 2P";
   /* border: 1px solid green; */
-  border-color: green;
+  border-color: #aef78e;
   border-style: solid;
   width: 100%;
   /* height: 30px;
@@ -29,7 +32,7 @@ input {
 }
 
 .custom-button {
-  background-color: green;
+  background-color: #aef78e;
   color: black;
   padding: 10px;
   font-size: 10px;
@@ -41,12 +44,13 @@ input {
 }
 
 body {
-  background-color: rgb(23, 23, 23) !important;
+  /* background-color: rgb(23, 23, 23) !important; */
+  background-color: transparent !important;
 }
 
 .large-avatar {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   vertical-align: bottom;
   align-self: flex-end;
 }
@@ -64,4 +68,13 @@ body {
 #root {
   width: 100%;
   padding: 10px;
+  background-color: transparent;
+  opacity: 91%;
+  max-width: 700px;
+  /* height: 100vh;
+  margin-top: 10vh;
+  margin-bottom: 10vh; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

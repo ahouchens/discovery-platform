@@ -56,7 +56,6 @@ function Messages(props) {
                 }
                 style={{
                   verticalAlign: "top",
-                  // flexGrow: 1,
                   alignSelf: "flex-start",
                 }}
                 key={index}
@@ -92,7 +91,6 @@ function Messages(props) {
                   style={{
                     verticalAlign: "bottom",
                     userSelect: "none",
-                    width: "60px",
                   }}
                   src={avatarDict[msg.avatarId]}
                 />
@@ -105,7 +103,6 @@ function Messages(props) {
                 }
                 style={{
                   verticalAlign: "top",
-                  //flexGrow: 1,
                   alignSelf: "flex-start",
                 }}
                 key={index}
