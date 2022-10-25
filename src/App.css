@@ -28,7 +28,7 @@ input {
   line-height: 30px; */
 }
 
-button {
+.custom-button {
   background-color: green;
   color: black;
   padding: 10px;
@@ -42,4 +42,8 @@ button {
 
 body {
   background-color: rgb(23, 23, 23) !important;
+}
+
+.large-avatar {
+  width: 80px;
 }
