@@ -1,4 +1,6 @@
 import "./App.css";
+import "nes.css/css/nes.min.css";
+
 import Peer from "peerjs";
 import { useEffect, useState } from "react";
 function App() {
@@ -87,13 +89,19 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <div>
-        Your ID: <strong>{peerId}</strong>
+    <div className="nes-container is-dark " style={{ minWidth: "300px" }}>
+      <div>Your ID:</div>
+      <div style={{ width: "100%" }}>
+        <strong>{peerId}</strong>
       </div>
       {/* <div>Connection IDs: {connectionPeerIds}</div> */}
       <div>
-        Connected Status: {isConnected ? "Connected!" : "Not Connected"}
+        Connected Status:{" "}
+        {isConnected ? (
+          <span className="nes-text is-success">Connected</span>
+        ) : (
+          <span className="nes-text is-warning">Not Connected</span>
+        )}
       </div>
       <div>
         <label>
@@ -103,15 +111,32 @@ function App() {
       </div>
 
       {isConnected ? (
-        <div>
-          <ul>
+        <div className="nes-container">
+          {/* <ul>
             {messages.map((msg, index) => (
-              <li key={index}>{msg}</li>
+              <div className="nes-balloon is-dark" key={index}>
+                {msg}
+              </div>
             ))}
-          </ul>
+          </ul> */}
+
+          <div className="message-list">
+            {messages.map((msg, index) => (
+              <div className="message -left">
+                <i class="nes-ash is-small"></i>
+                <div
+                  className="nes-balloon is-dark from-left "
+                  style={{ verticalAlign: "top" }}
+                  key={index}
+                >
+                  {msg}
+                </div>
+              </div>
+            ))}
+          </div>
 
           <div>
-            <label>
+            <label style={{ width: "100%" }}>
               Message:{" "}
               <input
                 onChange={(e) => setMessage(e.target.value)}
@@ -129,11 +154,11 @@ function App() {
           </div>
         </div>
       ) : (
-        <div>
-          <div>Connect to a peer.</div>
+        <section className="nes-container is-dark with-title">
+          <h3 className="title">Connect to a Peer</h3>
 
           <div>
-            <label>
+            <label style={{ width: "100%" }}>
               Peer ID:{" "}
               <input onChange={handleChange} value={connectionPeerIds}></input>
             </label>
@@ -141,7 +166,7 @@ function App() {
           <div>
             <button onClick={connect}>Connect</button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
