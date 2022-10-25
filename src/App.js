@@ -128,7 +128,7 @@ function App() {
   return (
     <div
       className="nes-container is-dark "
-      style={{ minWidth: "300px", maxWidth: "700px" }}
+      style={{ minWidth: "384px", padding: "10px" }}
     >
       <div>Your ID:</div>
       {tooltipContent}
@@ -148,38 +148,40 @@ function App() {
         </button>
       </div>
 
-      <div>
-        Connected Status:{" "}
+      <div style={{ margin: "10px" }}>
+        <div>Connected Status:</div>
         {isConnected ? (
           <span className="nes-text is-success">Connected</span>
         ) : (
           <span className="nes-text is-warning">Not Connected</span>
         )}
       </div>
-      <div>
+      <div style={{ margin: "10px" }}>
         <label>
           Name:{" "}
           <input onChange={(e) => setName(e.target.value)} value={name}></input>
         </label>
       </div>
-      <label htmlFor="default_select">Select Avatar</label>
-      <div className="nes-select">
-        <select
-          required
-          id="default_select"
-          value={avatarId}
-          // defaultValue={0}
-          onChange={(e) => setAvatarId(e.target.value)}
-        >
-          <option value="0">Ash</option>
-          <option value="1">Lance</option>
-          <option value="2">Koga</option>
-          <option value="3">Bird Keeper</option>
-        </select>
+      <div style={{ marginBottom: "20px", marginLeft: "10px" }}>
+        <label htmlFor="default_select">Select Avatar</label>
+        <div className="nes-select">
+          <select
+            required
+            id="default_select"
+            value={avatarId}
+            // defaultValue={0}
+            onChange={(e) => setAvatarId(e.target.value)}
+          >
+            <option value="0">Ash</option>
+            <option value="1">Lance</option>
+            <option value="2">Koga</option>
+            <option value="3">Bird Keeper</option>
+          </select>
+        </div>
       </div>
 
       {isConnected ? (
-        <div className="nes-container">
+        <div className="nes-container" style={{ minWidth: "100px" }}>
           <Messages messages={messages} peerId={peerId} />
 
           <div style={{ marginTop: "20px" }}>

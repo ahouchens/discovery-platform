@@ -18,7 +18,6 @@ function Messages(props) {
   const messagesParent = useRef(null);
 
   useEffect(() => {
-    console.log("here?");
     const domNode = messagesParent.current;
     if (domNode) {
       domNode.scrollTop = domNode.scrollHeight;
@@ -31,6 +30,11 @@ function Messages(props) {
       style={{
         height: "500px",
         overflowY: "scroll",
+        display: "flex",
+        minWidth: "300px",
+        padding: "8px",
+        flexDirection: "column",
+        fontSize: "12px",
       }}
     >
       {props.messages.map((msg, index) => {
@@ -40,7 +44,7 @@ function Messages(props) {
           return (
             <div
               className="message -right"
-              style={{ maxWidth: "100%" }}
+              style={{ width: "100%" }}
               key={index}
             >
               <div
@@ -49,7 +53,11 @@ function Messages(props) {
                     ? "nes-balloon is-dark "
                     : "nes-balloon is-dark from-right"
                 }
-                style={{ verticalAlign: "top", width: "440px" }}
+                style={{
+                  verticalAlign: "top",
+                  flexGrow: 1,
+                  alignSelf: "flex-start",
+                }}
                 key={index}
               >
                 {msg.type == "system"
@@ -72,7 +80,7 @@ function Messages(props) {
           return (
             <div
               className="message -left"
-              style={{ maxWidth: "100%", color: "black" }}
+              style={{ width: "100%", color: "black" }}
               key={index}
             >
               {msg.type == "system" ? (
@@ -80,7 +88,11 @@ function Messages(props) {
               ) : (
                 <img
                   className="large-avatar"
-                  style={{ verticalAlign: "bottom", userSelect: "none" }}
+                  style={{
+                    verticalAlign: "bottom",
+                    userSelect: "none",
+                    width: "60px",
+                  }}
                   src={avatarDict[msg.avatarId]}
                 />
               )}
@@ -90,7 +102,11 @@ function Messages(props) {
                     ? "nes-balloon is-dark "
                     : "nes-balloon  from-left"
                 }
-                style={{ verticalAlign: "top", width: "440px" }}
+                style={{
+                  verticalAlign: "top",
+                  flexGrow: 1,
+                  alignSelf: "flex-start",
+                }}
                 key={index}
               >
                 {msg.type == "system"

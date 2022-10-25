@@ -45,5 +45,27 @@ body {
 }
 
 .large-avatar {
-  width: 80px;
+  width: 60px;
+  height: 60px;
+  vertical-align: bottom;
+  align-self: flex-end;
+}
+
+.message {
+  display: flex;
+  /* flex: 1; */
+  margin-bottom: 12px;
+}
+
+.nes-balloon.is-dark {
+  border-image-repeat: inherit !important;
+}
+
+#root {
+  width: 100%;
+  padding: 10px;
+}
+
+.message::selection {
+  background: red !important;
 }
