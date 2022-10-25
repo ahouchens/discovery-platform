@@ -39,6 +39,7 @@ function Messages(props) {
     >
       {props.messages.map((msg, index) => {
         let isMyMessage = props.peerId === msg.id;
+        let isSystemMessage = msg.type === "system";
 
         if (isMyMessage) {
           return (
@@ -50,7 +51,7 @@ function Messages(props) {
               <div
                 className={
                   msg.type == "system"
-                    ? "nes-balloon is-dark "
+                    ? "nes-balloon "
                     : "nes-balloon is-dark from-right"
                 }
                 style={{
