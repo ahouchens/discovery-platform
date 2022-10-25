@@ -38,7 +38,7 @@ function App() {
     });
   };
 
-  const sendMessage = (event) => {
+  const sendMessage = () => {
     console.log("begin send message", message);
     // console.log("peerConnectionObj", peerConnectionObj);
 
@@ -48,9 +48,10 @@ function App() {
       name: name,
       message: message,
     });
-    setMessages((oldMessages) => [...oldMessages, `${name} - ${message}`]);
+    setMessages((oldMessages) => [...oldMessages, `${name} > ${message}`]);
 
     peerConnectionObj.send(newMessage);
+    setMessage("");
   };
 
   useEffect(() => {
@@ -78,7 +79,7 @@ function App() {
             console.log("BEFORE value of messages array", messages);
             setMessages((oldMessages) => [
               ...oldMessages,
-              `${dataObj.name} - ${dataObj.message}`,
+              `${dataObj.name} > ${dataObj.message}`,
             ]);
             console.log("AFTER value of messages array", messages);
 
@@ -86,6 +87,10 @@ function App() {
         }
       });
     });
+
+    return () => {
+      alert("ON TEAR DOWN??");
+    };
   }, []);
 
   return (
@@ -117,6 +122,11 @@ function App() {
               Message:{" "}
               <input
                 onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    sendMessage(e);
+                  }
+                }}
                 value={message}
               ></input>
             </label>
