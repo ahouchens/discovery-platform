@@ -1,9 +1,5 @@
 import "./App.css";
 import "nes.css/css/nes.min.css";
-import avatarRed from "./avatars/red.webp";
-import avatarLance from "./avatars/lance.webp";
-import avatarKoga from "./avatars/koga.webp";
-import avatarBirdKeeper from "./avatars/bird-keeper.webp";
 import Messages from "./components/messages";
 import Peer from "peerjs";
 import { useEffect, useState, useRef } from "react";
@@ -20,18 +16,11 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
 
-  const [peerConnectionObj, setPeerConnectionObj] = useState(null);
-  var peerObj = new Peer();
+  const [peerConnectionObjs, setPeerConnectionObjs] = useState(new Set());
+  const [peerObj, setPeerObj] = useState(new Peer());
 
   const handleChange = (event) => {
     setConnectionPeerIds(event.target.value);
-  };
-
-  let avatarDict = {
-    0: avatarRed,
-    1: avatarLance,
-    2: avatarKoga,
-    3: avatarBirdKeeper,
   };
 
   useEffect(() => {
@@ -45,24 +34,39 @@ function App() {
     }
   }, [isTooltip]);
 
-  const connect = (event) => {
-    event.preventDefault();
-    console.log("About to connect to peer ids:", connectionPeerIds);
-    var conn = peerObj.connect(connectionPeerIds);
-    setPeerConnectionObj(conn);
-    // on open will be launch when you successfully connect to PeerServer
-    conn.on("open", function () {
-      setIsConnected(true);
-      let message = {
-        type: "connection",
-        id: peerId,
-        initiator: true,
-        name: name,
-      };
-      conn.send(JSON.stringify(message));
+  // CONNECT
+  const connect = (connPeerIds) => {
+    let peerItemIds = connPeerIds.split(",").map((item) => item);
+    peerItemIds = [...peerItemIds, peerId];
+    peerItemIds = peerItemIds.filter((c, index) => {
+      // remove dups
+      return peerItemIds.indexOf(c) === index;
+    });
+
+    let peers = peerItemIds.map((peerItem) => {
+      var conn = peerObj.connect(peerItem);
+      setPeerConnectionObjs(
+        (oldConnectionObjs) => new Set([...oldConnectionObjs, conn])
+      );
+
+      // on open will be launch when you successfully connect to PeerServer
+      conn.on("open", function () {
+        if (!isConnected) {
+          setIsConnected(true);
+        }
+        let message = {
+          type: "connection",
+          userId: peerId,
+          ids: peerItemIds,
+          initiator: true,
+          name: name,
+        };
+        conn.send(JSON.stringify(message));
+      });
     });
   };
 
+  // SEND
   const sendMessage = () => {
     let newMessage = {
       type: "message",
@@ -71,9 +75,12 @@ function App() {
       message: message,
       avatarId: avatarId,
     };
+
     setMessages((oldMessages) => [...oldMessages, newMessage]);
 
-    peerConnectionObj.send(JSON.stringify(newMessage));
+    peerConnectionObjs.forEach((peerConnectionObj) => {
+      peerConnectionObj.send(JSON.stringify(newMessage));
+    });
     setMessage("");
   };
 
@@ -88,8 +95,10 @@ function App() {
         switch (dataObj.type) {
           default:
           case "connection":
-            var conn = peerObj.connect(dataObj.id);
-            setPeerConnectionObj(conn);
+            // NOTE: connect to all the other ids here
+            if (peerId != dataObj.userId) {
+              connect(dataObj.ids.join(","));
+            }
             setMessages((oldMessages) => [
               ...oldMessages,
               {
@@ -212,7 +221,10 @@ function App() {
             </label>
           </div>
           <div>
-            <button onClick={connect} className="custom-button">
+            <button
+              onClick={() => connect(connectionPeerIds)}
+              className="custom-button"
+            >
               Connect
             </button>
           </div>
