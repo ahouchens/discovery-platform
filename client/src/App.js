@@ -3,66 +3,68 @@ import "nes.css/css/nes.min.css";
 import Messages from "./components/messages";
 import Peer from "peerjs";
 import { useEffect, useState, useRef } from "react";
-function App() {
-  const [tooltipContent, setTooltipContent] = useState();
-  const [isTooltip, setIsTooltip] = useState();
+import { useBeforeunload } from "react-beforeunload";
+import { AvatarSelect } from "./components/avatar-select";
+import { CopyClipboard } from "./components/copy-clipboard";
+import { avatarDict } from "./utils/constants";
 
+function App() {
   const [avatarId, setAvatarId] = useState(0);
 
   const [peerId, setPeerId] = useState();
-  const [connectionPeerIds, setConnectionPeerIds] = useState("");
   const [name, setName] = useState("Default");
   const [message, setMessage] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [messages, setMessages] = useState([]);
 
-  const [peerConnectionObjs, setPeerConnectionObjs] = useState(new Set());
+  const [peerConnectionObjs, setPeerConnectionObjs] = useState([]);
   const [peerObj, setPeerObj] = useState(new Peer());
 
-  const handleChange = (event) => {
-    setConnectionPeerIds(event.target.value);
-  };
-
-  useEffect(() => {
-    if (isTooltip) {
-      setTooltipContent(<span className="nes-text is-success">Copied!</span>);
-      setTimeout(() => {
-        setIsTooltip(false);
-      }, 2000);
-    } else {
-      setTooltipContent("");
-    }
-  }, [isTooltip]);
-
   // CONNECT
-  const connect = (connPeerIds) => {
-    let peerItemIds = connPeerIds.split(",").map((item) => item);
-    peerItemIds = [...peerItemIds, peerId];
+  const connect = async (userId) => {
+    let peerItemIds = await fetch("/ids")
+      .then((res) => res.json())
+      .then((data) => {
+        return data.ids;
+      });
+
+    if (typeof userId !== "undefined") {
+      peerItemIds = [...peerItemIds, userId];
+    }
     peerItemIds = peerItemIds.filter((c, index) => {
       // remove dups
       return peerItemIds.indexOf(c) === index;
     });
 
-    let peers = peerItemIds.map((peerItem) => {
-      var conn = peerObj.connect(peerItem);
-      setPeerConnectionObjs(
-        (oldConnectionObjs) => new Set([...oldConnectionObjs, conn])
-      );
+    let updateConnectionObjs = [];
 
-      // on open will be launch when you successfully connect to PeerServer
-      conn.on("open", function () {
-        if (!isConnected) {
-          setIsConnected(true);
-        }
-        let message = {
-          type: "connection",
-          userId: peerId,
-          ids: peerItemIds,
-          initiator: true,
-          name: name,
-        };
-        conn.send(JSON.stringify(message));
-      });
+    peerItemIds.forEach(async (peerItem) => {
+      if (peerItem != userId) {
+        setIsConnecting(true);
+        console.log("peerItem", peerItem);
+
+        var conn = await peerObj.connect(peerItem);
+
+        updateConnectionObjs.push(conn);
+
+        // on open will be launch when you successfully connect to PeerServer
+        conn.on("open", function () {
+          if (!isConnected) {
+            setIsConnected(true);
+            setIsConnecting(false);
+          }
+          let message = {
+            type: "connection",
+            userId: userId,
+            ids: peerItemIds,
+            initiator: true,
+            name: name,
+          };
+          conn.send(JSON.stringify(message));
+          setPeerConnectionObjs(updateConnectionObjs);
+        });
+      }
     });
   };
 
@@ -71,11 +73,11 @@ function App() {
     let newMessage = {
       type: "message",
       id: peerId,
+      userId: peerId,
       name: name,
       message: message,
       avatarId: avatarId,
     };
-
     setMessages((oldMessages) => [...oldMessages, newMessage]);
 
     peerConnectionObjs.forEach((peerConnectionObj) => {
@@ -85,14 +87,16 @@ function App() {
   };
 
   useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("data", data);
-      });
-
     peerObj.on("open", function (id) {
       setPeerId(id);
+
+      fetch(`/ids/${id}`, { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("data", data);
+        });
+
+      connect(id);
     });
 
     peerObj.on("connection", function (conn) {
@@ -103,7 +107,7 @@ function App() {
           case "connection":
             // NOTE: connect to all the other ids here
             if (peerId != dataObj.userId) {
-              connect(dataObj.ids.join(","));
+              connect(peerId);
             }
             setMessages((oldMessages) => [
               ...oldMessages,
@@ -138,29 +142,20 @@ function App() {
     };
   }, []);
 
+  useBeforeunload((event) => {
+    event.preventDefault();
+    fetch(`/ids/${peerId}`, { method: "DELETE" })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("DELETE", data);
+      });
+  });
+
   return (
     <div
       className="nes-container is-dark "
       style={{ minWidth: "384px", padding: "10px" }}
     >
-      <div>Your ID:</div>
-      {tooltipContent}
-      <div style={{ width: "100%" }}>
-        <button
-          className="nes-btn"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(peerId);
-              setIsTooltip(true);
-            } catch (err) {
-              console.error("Failed to copy: ", err);
-            }
-          }}
-        >
-          {peerId}
-        </button>
-      </div>
-
       <div style={{ margin: "10px" }}>
         <div>Connected Status:</div>
         {isConnected ? (
@@ -175,67 +170,64 @@ function App() {
           <input onChange={(e) => setName(e.target.value)} value={name}></input>
         </label>
       </div>
-      <div style={{ marginBottom: "20px", marginLeft: "10px" }}>
-        <label htmlFor="default_select">Select Avatar</label>
-        <div className="nes-select">
-          <select
-            required
-            id="default_select"
-            value={avatarId}
-            onChange={(e) => setAvatarId(e.target.value)}
-          >
-            <option value="0">Ash</option>
-            <option value="1">Lance</option>
-            <option value="2">Koga</option>
-            <option value="3">Bird Keeper</option>
-          </select>
-        </div>
-      </div>
 
-      {isConnected ? (
-        <div className="nes-container" style={{ minWidth: "100px" }}>
-          <Messages messages={messages} peerId={peerId} />
+      <AvatarSelect
+        onSelect={(id) => setAvatarId(id)}
+        selectedAvatar={avatarId}
+      />
 
-          <div style={{ marginTop: "20px" }}>
-            <label style={{ width: "100%" }}>
-              Message:{" "}
-              <input
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    sendMessage(e);
-                  }
+      <div className="nes-container" style={{ minWidth: "100px" }}>
+        {isConnecting ? (
+          <div style={{ padding: "100px", display: "flex" }}>
+            <div id="loader" style={{ position: "relative" }}></div>
+          </div>
+        ) : (
+          <>
+            {isConnected ? (
+              <>
+                <Messages messages={messages} peerId={peerId} />
+
+                <div style={{ marginTop: "20px" }}>
+                  <label style={{ width: "100%" }}>
+                    Message:{" "}
+                    <input
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          sendMessage(e);
+                        }
+                      }}
+                      value={message}
+                    ></input>
+                  </label>
+                  <div>
+                    <button onClick={sendMessage} className="custom-button">
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  width: "100%",
                 }}
-                value={message}
-              ></input>
-            </label>
-            <div>
-              <button onClick={sendMessage} className="custom-button">
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <section className="nes-container is-dark with-title">
-          <h3 className="title">Connect</h3>
-
-          <div>
-            <label style={{ width: "100%" }}>
-              Peer ID:{" "}
-              <input onChange={handleChange} value={connectionPeerIds}></input>
-            </label>
-          </div>
-          <div>
-            <button
-              onClick={() => connect(connectionPeerIds)}
-              className="custom-button"
-            >
-              Connect
-            </button>
-          </div>
-        </section>
-      )}
+              >
+                <img src={avatarDict["4"]} style={{ width: "100px" }} />{" "}
+                <div style={{ margin: "10px" }}>You're the only one here.</div>
+                <CopyClipboard
+                  label="Share this link!"
+                  copyContent={window.location.href}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

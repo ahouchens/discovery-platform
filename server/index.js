@@ -34,6 +34,11 @@ app.delete("/ids/:id", (req, res) => {
   });
 });
 
+app.get("/reset", (req, res) => {
+  ids = [];
+  res.json({ ids });
+});
+
 // All other GET requests not handled before will return our React app
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));

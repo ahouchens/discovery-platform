@@ -1,20 +1,10 @@
 // import "./App.css";
 import "nes.css/css/nes.min.css";
-import avatarRed from "../avatars/red.webp";
-import avatarLance from "../avatars/lance.webp";
-import avatarKoga from "../avatars/koga.webp";
-import avatarBirdKeeper from "../avatars/bird-keeper.webp";
 
-import Peer from "peerjs";
+import { avatarDict } from "../utils/constants";
 import { useEffect, useState, useRef } from "react";
 
 function Messages(props) {
-  let avatarDict = {
-    0: avatarRed,
-    1: avatarLance,
-    2: avatarKoga,
-    3: avatarBirdKeeper,
-  };
   const messagesParent = useRef(null);
 
   useEffect(() => {
