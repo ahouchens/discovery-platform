@@ -1,8 +1,8 @@
-import avatarRed from "../avatars/red.webp";
-import avatarLance from "../avatars/lance.webp";
-import avatarKoga from "../avatars/koga.webp";
-import avatarBirdKeeper from "../avatars/bird-keeper.webp";
-import profOak from "../avatars/oak.webp";
+import avatarRed from "../avatars/red.png";
+import avatarLance from "../avatars/lance.png";
+import avatarKoga from "../avatars/koga.png";
+import avatarBirdKeeper from "../avatars/bird-keeper.png";
+import profOak from "../avatars/oak.png";
 
 export let avatarDict = {
   0: avatarRed,
