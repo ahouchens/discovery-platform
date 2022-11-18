@@ -6,6 +6,9 @@ import {
   Vector,
   Scene,
   CollisionType,
+  SpriteSheet,
+  Animation,
+  range,
 } from "excalibur";
 import { EventMessageArgs, globalSingleton } from "../utils/constants";
 
@@ -17,7 +20,7 @@ export class Player extends Actor {
     super(args);
     // this.x = args.x;
     // this.y = args.y;
-    this.speed = 4;
+    this.speed = 1;
     this.sendEventMessage = args.sendEventMessage;
   }
 
@@ -43,6 +46,26 @@ export class Player extends Actor {
       });
 
       this.moveDown(this.pos.x, this.pos.y);
+
+      const moveDownSpriteSheet = SpriteSheet.fromImageSource({
+        image: globalSingleton.kennyCardsImage,
+        grid: {
+          rows: 3,
+          columns: 1,
+          spriteWidth: 16,
+          spriteHeight: 16,
+        },
+        spacing: {
+          originOffset: { x: 384, y: 0 },
+        },
+      });
+      let walkDown = Animation.fromSpriteSheet(
+        moveDownSpriteSheet,
+        range(0, 5),
+        200
+      );
+
+      this.graphics.use(walkDown);
     }
     if (engine.input.keyboard.isHeld(Input.Keys.D)) {
       this.sendEventMessage({
@@ -58,7 +81,29 @@ export class Player extends Actor {
         pos: this.pos,
         targetId: this.name,
       });
+
       this.moveLeft(this.pos.x, this.pos.y);
+
+      const moveLeftSpriteSheet = SpriteSheet.fromImageSource({
+        image: globalSingleton.kennyCardsImage,
+        grid: {
+          rows: 3,
+          columns: 1,
+          spriteWidth: 16,
+          spriteHeight: 16,
+        },
+        spacing: {
+          originOffset: { x: 368, y: 0 },
+        },
+      });
+
+      let walkLeft = Animation.fromSpriteSheet(
+        moveLeftSpriteSheet,
+        range(0, 5),
+        200
+      );
+
+      this.graphics.use(walkLeft);
     }
 
     if (

@@ -26,10 +26,16 @@ import {
   Loader,
   DisplayMode,
   CollisionEndEvent,
+  ImageSource,
+  SpriteSheet,
+  Animation,
+  Util,
+  range,
 } from "excalibur";
 
 import { Player } from "./classes/player";
 import { TiledMapResource } from "@excaliburjs/plugin-tiled";
+import { debug } from "console";
 
 function App() {
   const [avatarId, setAvatarId] = useState(0);
@@ -83,11 +89,17 @@ function App() {
           width: 16,
           height: 16,
           color: tempColors[Math.floor(Math.random() * tempColors.length)],
-          pos: new Vector(500, 500),
+          pos: new Vector(
+            globalSingleton.game.halfDrawWidth,
+            globalSingleton.game.halfDrawHeight
+          ),
 
           collisionType: CollisionType.Active,
           sendEventMessage: sendEventMessage,
         });
+
+        // player.graphics.use(walkDown);
+
         // player.on("collisionend", (e: CollisionEndEvent) => {
         //   let isTile = e.other.hasOwnProperty("tileHeight");
         //   if (!isTile) {
@@ -166,10 +178,10 @@ function App() {
       x: args.pos.x,
       y: args.pos.y,
     };
-    if (args.eventSubtype == "move") {
-      console.log("move begin");
-      console.log("eventMessage", eventMessage);
-    }
+    // if (args.eventSubtype == "move") {
+    //   console.log("move begin");
+    //   console.log("eventMessage", eventMessage);
+    // }
     globalSingleton.peerConnectionObjs.forEach((peerConnectionObj: any) => {
       peerConnectionObj.send(JSON.stringify(eventMessage));
     });
@@ -185,12 +197,18 @@ function App() {
       });
       globalSingleton.game = game;
       const tiledMapResource = new TiledMapResource("./example-city.tmx");
+      const kennyCardsImage = new ImageSource("./tilemap_packed.png");
       // THIS POINTS TO THE ASSET IN /PUBLIC --- REMOVE SRC BASED FILES
+      globalSingleton.tiledMapResource = tiledMapResource;
+      globalSingleton.kennyCardsImage = kennyCardsImage;
 
-      const loader = new Loader([tiledMapResource]);
+      const loader = new Loader([tiledMapResource, kennyCardsImage]);
 
       await game.start(loader).then(() => {
         console.log("Game loaded");
+        // let anim = tiledMapResource.getAnimationForGid(50);
+        // debugger;
+        // console.log("tiledMapResource animation?", anim);
 
         tiledMapResource.addTiledMapToScene(game.currentScene);
       });
