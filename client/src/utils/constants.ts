@@ -1,3 +1,5 @@
+import { Vector } from "excalibur";
+
 const avatarRed = require("../avatars/red.png");
 const avatarLance = require("../avatars/lance.png");
 const avatarKoga = require("../avatars/koga.png");
@@ -30,8 +32,8 @@ export type EventMessage = {
   type: string;
   eventSubtype: string;
   id: string;
-  x: string;
-  y: string;
+  x: number;
+  y: number;
 };
 
 export type ConnectionMessage = {
@@ -39,4 +41,10 @@ export type ConnectionMessage = {
   userId: string;
   ids: Array<string>;
   name: string;
+};
+
+export type EventMessageArgs = {
+  eventSubtype: string;
+  pos: Vector;
+  targetId?: string;
 };

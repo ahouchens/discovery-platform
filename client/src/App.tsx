@@ -12,6 +12,7 @@ import {
   ChatMessage,
   ConnectionMessage,
   EventMessage,
+  EventMessageArgs,
   globalSingleton,
 } from "./utils/constants";
 import {
@@ -24,6 +25,7 @@ import {
   CollisionType,
   Loader,
   DisplayMode,
+  CollisionEndEvent,
 } from "excalibur";
 
 import { Player } from "./classes/player";
@@ -81,16 +83,26 @@ function App() {
           width: 16,
           height: 16,
           color: tempColors[Math.floor(Math.random() * tempColors.length)],
-          x: 100 + index * 8,
-          y: 100,
+          pos: new Vector(500, 500),
+
           collisionType: CollisionType.Active,
           sendEventMessage: sendEventMessage,
         });
-        player.on("collisionend", () => {
-          console.log("COLLISION END!", player.pos);
-          // sendEventMessage("move", player.pos);
-          // player.move(player.pos.x, player.pos.y);
-        });
+        // player.on("collisionend", (e: CollisionEndEvent) => {
+        //   let isTile = e.other.hasOwnProperty("tileHeight");
+        //   if (!isTile) {
+        //     // console.log("COLLISION-END: OTHER IS NOT TILE", e.other.name);
+        //     // sendEventMessage({ eventSubtype: "move", pos: player.pos });
+        //     // setInterval(() => {
+        //     //   sendEventMessage({
+        //     //     eventSubtype: "move",
+        //     //     pos: e.other.pos,
+        //     //     targetId: e.other.name,
+        //     //   });
+        //     // }, 2000);
+        //     // player.move(player.pos.x, player.pos.y);
+        //   }
+        // });
         game.add(player);
         // lock camera to player avatar
         if (peerItemId == userId) {
@@ -146,14 +158,18 @@ function App() {
     setMessage("");
   };
 
-  const sendEventMessage = (eventSubtype: string, args: any) => {
+  const sendEventMessage = (args: EventMessageArgs) => {
     let eventMessage: EventMessage = {
       type: "event",
-      eventSubtype,
-      id: globalSingleton.peerId,
-      x: args.x,
-      y: args.y,
+      eventSubtype: args.eventSubtype,
+      id: args.targetId ? args.targetId : globalSingleton.peerId,
+      x: args.pos.x,
+      y: args.pos.y,
     };
+    if (args.eventSubtype == "move") {
+      console.log("move begin");
+      console.log("eventMessage", eventMessage);
+    }
     globalSingleton.peerConnectionObjs.forEach((peerConnectionObj: any) => {
       peerConnectionObj.send(JSON.stringify(eventMessage));
     });
@@ -165,6 +181,7 @@ function App() {
         width: 600,
         height: 400,
         displayMode: DisplayMode.FitScreen,
+        antialiasing: false,
       });
       globalSingleton.game = game;
       const tiledMapResource = new TiledMapResource("./example-city.tmx");
