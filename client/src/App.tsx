@@ -36,6 +36,8 @@ import {
 import { Player } from "./classes/player";
 import { TiledMapResource } from "@excaliburjs/plugin-tiled";
 import { debug } from "console";
+import { Resources } from "./utils/resources";
+import { NONAME } from "dns";
 
 function App() {
   const [avatarId, setAvatarId] = useState(0);
@@ -46,7 +48,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [messages, setMessages] = useState<Array<ChatMessage>>([]);
-
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [peerConnectionObjs, setPeerConnectionObjs] = useState<Array<any>>([]);
   const [peerObj, setPeerObj] = useState(new Peer());
 
@@ -89,32 +91,25 @@ function App() {
           width: 16,
           height: 16,
           color: tempColors[Math.floor(Math.random() * tempColors.length)],
-          pos: new Vector(
-            globalSingleton.game.halfDrawWidth,
-            globalSingleton.game.halfDrawHeight
-          ),
+          pos: new Vector(30, 30),
 
           collisionType: CollisionType.Active,
           sendEventMessage: sendEventMessage,
         });
 
-        // player.graphics.use(walkDown);
-
-        // player.on("collisionend", (e: CollisionEndEvent) => {
-        //   let isTile = e.other.hasOwnProperty("tileHeight");
-        //   if (!isTile) {
-        //     // console.log("COLLISION-END: OTHER IS NOT TILE", e.other.name);
-        //     // sendEventMessage({ eventSubtype: "move", pos: player.pos });
-        //     // setInterval(() => {
-        //     //   sendEventMessage({
-        //     //     eventSubtype: "move",
-        //     //     pos: e.other.pos,
-        //     //     targetId: e.other.name,
-        //     //   });
-        //     // }, 2000);
-        //     // player.move(player.pos.x, player.pos.y);
-        //   }
-        // });
+        player.on("collisionend", (e: CollisionEndEvent) => {
+          let isTile = e.other.hasOwnProperty("tileHeight");
+          if (!isTile) {
+            if (player) {
+              player.move(player.pos.x, player.pos.y);
+            }
+            sendEventMessage({
+              eventSubtype: "move",
+              pos: e.other.pos,
+              targetId: e.other.name,
+            });
+          }
+        });
         game.add(player);
         // lock camera to player avatar
         if (peerItemId == userId) {
@@ -190,27 +185,24 @@ function App() {
   useEffect(() => {
     let startGame = async () => {
       let game = new Engine({
-        width: 600,
+        width: 800,
         height: 400,
         displayMode: DisplayMode.FitScreen,
         antialiasing: false,
+        backgroundColor: Color.fromRGB(153, 194, 219),
       });
       globalSingleton.game = game;
-      const tiledMapResource = new TiledMapResource("./example-city.tmx");
-      const kennyCardsImage = new ImageSource("./tilemap_packed.png");
-      // THIS POINTS TO THE ASSET IN /PUBLIC --- REMOVE SRC BASED FILES
-      globalSingleton.tiledMapResource = tiledMapResource;
-      globalSingleton.kennyCardsImage = kennyCardsImage;
-
-      const loader = new Loader([tiledMapResource, kennyCardsImage]);
-
+      globalSingleton.resources = Resources;
+      const loader = new Loader(Object.values(Resources));
+      loader.suppressPlayButton = true;
+      loader.logo = avatarDict[0];
+      loader.logoPosition = new Vector(
+        game.halfCanvasWidth,
+        game.halfCanvasHeight
+      );
       await game.start(loader).then(() => {
         console.log("Game loaded");
-        // let anim = tiledMapResource.getAnimationForGid(50);
-        // debugger;
-        // console.log("tiledMapResource animation?", anim);
-
-        tiledMapResource.addTiledMapToScene(game.currentScene);
+        Resources.tiledMapResource.addTiledMapToScene(game.currentScene);
       });
     };
 
@@ -270,23 +262,27 @@ function App() {
             let eventPlayer = globalSingleton.game.scenes.root.actors.find(
               (actor: Actor) => actor.name == dataObj.id
             );
-            if (dataObj.eventSubtype === "move") {
-              eventPlayer.move(dataObj.x, dataObj.y);
+            if (eventPlayer) {
+              if (dataObj.eventSubtype === "move") {
+                eventPlayer.move(dataObj.x, dataObj.y);
+              }
+              if (dataObj.eventSubtype === "up") {
+                eventPlayer.moveUp(dataObj.x, dataObj.y);
+              }
+              if (dataObj.eventSubtype === "left") {
+                eventPlayer.moveLeft(dataObj.x, dataObj.y);
+              }
+              if (dataObj.eventSubtype === "right") {
+                eventPlayer.moveRight(dataObj.x, dataObj.y);
+              }
+              if (dataObj.eventSubtype === "down") {
+                eventPlayer.moveDown(dataObj.x, dataObj.y);
+              }
+              if (dataObj.eventSubtype === "stop") {
+                eventPlayer.stop(dataObj.x, dataObj.y);
+              }
             }
-            if (dataObj.eventSubtype === "up") {
-              eventPlayer.moveUp(dataObj.x, dataObj.y);
-            }
-            if (dataObj.eventSubtype === "left") {
-              eventPlayer.moveLeft(dataObj.x, dataObj.y);
-            }
-            if (dataObj.eventSubtype === "right") {
-              eventPlayer.moveRight(dataObj.x, dataObj.y);
-            }
-            if (dataObj.eventSubtype === "down") {
-              eventPlayer.moveDown(dataObj.x, dataObj.y);
-            }
-            if (dataObj.eventSubtype === "stop") {
-            }
+
             break;
           case "message":
             setMessages((oldMessages) => [
@@ -338,83 +334,110 @@ function App() {
     globalSingleton.peerConnectionObjs = peerConnectionObjs;
   }, [peerConnectionObjs]);
   return (
-    <div
-      className="nes-container is-dark "
-      style={{ minWidth: "384px", padding: "10px" }}
-    >
-      <div style={{ margin: "10px" }}>
+    <>
+      <button
+        className="custom-button"
+        onClick={() => setIsMenuVisible(!isMenuVisible)}
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "20px",
+        }}
+      >
+        Menu
+      </button>
+
+      <div
+        className="nes-container is-dark "
+        style={{
+          // minWidth: "384px",
+          // padding: "10px",
+          position: "absolute",
+          top: "40px",
+          left: "100px",
+          display: isMenuVisible ? "" : "none",
+        }}
+      >
+        {/* <div style={{ margin: "10px" }}>
         <div>Connected Status:</div>
         {isConnected ? (
           <span className="nes-text is-success">Connected</span>
         ) : (
           <span className="nes-text is-warning">Not Connected</span>
         )}
-      </div>
-      <div style={{ margin: "10px" }}>
-        <label>
-          Name:{" "}
-          <input onChange={(e) => setName(e.target.value)} value={name}></input>
-        </label>
-      </div>
+      </div> */}
 
-      <AvatarSelect
-        onSelect={(id) => setAvatarId(id)}
-        selectedAvatarId={avatarId}
-      />
+        <div style={{ margin: "10px" }}>
+          <label>
+            Name:{" "}
+            <input
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+            ></input>
+          </label>
+        </div>
 
-      <div className="nes-container" style={{ minWidth: "100px" }}>
-        {isConnecting ? (
-          <div style={{ padding: "100px", display: "flex" }}>
-            <div id="loader" style={{ position: "relative" }}></div>
-          </div>
-        ) : (
-          <>
-            {isConnected ? (
-              <>
-                <Messages messages={messages} peerId={peerId} />
+        <AvatarSelect
+          onSelect={(id) => setAvatarId(id)}
+          selectedAvatarId={avatarId}
+        />
 
-                <div style={{ marginTop: "20px" }}>
-                  <label style={{ width: "100%" }}>
-                    Message:{" "}
-                    <input
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          sendMessage();
-                        }
-                      }}
-                      value={message}
-                    ></input>
-                  </label>
-                  <div>
-                    <button onClick={sendMessage} className="custom-button">
-                      Send
-                    </button>
+        <div className="nes-container" style={{ minWidth: "100px" }}>
+          {isConnecting ? (
+            <div style={{ padding: "100px", display: "flex" }}>
+              <div id="loader" style={{ position: "relative" }}></div>
+            </div>
+          ) : (
+            <>
+              {isConnected ? (
+                <>
+                  <Messages messages={messages} peerId={peerId} />
+
+                  <div style={{ marginTop: "20px" }}>
+                    <label style={{ width: "100%" }}>
+                      Message:{" "}
+                      <input
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            sendMessage();
+                          }
+                        }}
+                        value={message}
+                      ></input>
+                    </label>
+                    <div>
+                      <button onClick={sendMessage} className="custom-button">
+                        Send
+                      </button>
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    width: "100%",
+                  }}
+                >
+                  <img src={avatarDict["4"]} style={{ width: "100px" }} />{" "}
+                  <div style={{ margin: "10px" }}>
+                    You're the only one here.
+                  </div>
+                  <CopyClipboard
+                    label="Share this link!"
+                    copyContent={window.location.href}
+                  />
                 </div>
-              </>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  width: "100%",
-                }}
-              >
-                <img src={avatarDict["4"]} style={{ width: "100px" }} />{" "}
-                <div style={{ margin: "10px" }}>You're the only one here.</div>
-                <CopyClipboard
-                  label="Share this link!"
-                  copyContent={window.location.href}
-                />
-              </div>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
