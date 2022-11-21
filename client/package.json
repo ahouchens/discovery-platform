@@ -9,7 +9,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.2.3",
-    "@types/node": "^18.11.9",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "excalibur": "^0.27.0",
@@ -49,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^18.11.9",
     "@types/react-beforeunload": "^2.1.1"
   }
 }

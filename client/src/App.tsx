@@ -19,25 +19,15 @@ import {
   Actor,
   Engine,
   Color,
-  Input,
   Vector,
-  Scene,
   CollisionType,
   Loader,
   DisplayMode,
   CollisionEndEvent,
-  ImageSource,
-  SpriteSheet,
-  Animation,
-  Util,
-  range,
 } from "excalibur";
 
 import { Player } from "./classes/player";
-import { TiledMapResource } from "@excaliburjs/plugin-tiled";
-import { debug } from "console";
 import { Resources } from "./utils/resources";
-import { NONAME } from "dns";
 
 function App() {
   const [avatarId, setAvatarId] = useState(0);
@@ -307,7 +297,7 @@ function App() {
     };
   }, []);
 
-  useBeforeunload((event) => {
+  useBeforeunload((event: any) => {
     event.preventDefault();
     let handleDisconnect = async () => {
       peerConnectionObjs.forEach((peerConnectionObj) => {

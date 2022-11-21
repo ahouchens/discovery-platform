@@ -1,10 +1,10 @@
 import { Vector } from "excalibur";
 
-const avatarRed = require("../avatars/red.png");
-const avatarLance = require("../avatars/lance.png");
-const avatarKoga = require("../avatars/koga.png");
-const avatarBirdKeeper = require("../avatars/bird-keeper.png");
-const profOak = require("../avatars/oak.png");
+import profOak from "../avatars/oak.png";
+import avatarRed from "../avatars/red.png";
+import avatarLance from "../avatars/lance.png";
+import avatarKoga from "../avatars/koga.png";
+import avatarBirdKeeper from "../avatars/bird-keeper.png";
 
 export type AvatarDict = {
   [key: number | string]: any;
